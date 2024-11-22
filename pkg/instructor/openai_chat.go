@@ -37,8 +37,8 @@ func (i *InstructorOpenAI) CreateChatCompletion(
 	return response, nil
 }
 
-func (i *InstructorOpenAI) chat(ctx context.Context, request interface{}, schema *Schema) (string, interface{}, error) {
-
+func (i *InstructorOpenAI) chat(ctx context.Context, request interface{}, schemaIn interface{}) (string, interface{}, error) {
+	schema := schemaIn.(*Schema)
 	req, ok := request.(openai.ChatCompletionRequest)
 	if !ok {
 		return "", nil, fmt.Errorf("invalid request type for %s client", i.Provider())

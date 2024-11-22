@@ -7,6 +7,7 @@ import (
 	"reflect"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/binarycraft007/instructor-go/pkg/instructor/googleai"
 )
 
 type UsageSum struct {
@@ -18,12 +19,20 @@ type UsageSum struct {
 func chatHandler(i Instructor, ctx context.Context, request interface{}, response any) (interface{}, error) {
 
 	var err error
+	var schema interface{}
 
 	t := reflect.TypeOf(response)
 
-	schema, err := NewSchema(t)
-	if err != nil {
-		return nil, err
+	if i.Provider() == ProviderGoogleAI {
+		schema, err = googleai.GenerateSchemaFromType(t)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		schema, err = NewSchema(t)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// keep a running total of usage

@@ -26,8 +26,8 @@ func (i *InstructorCohere) Chat(
 	return resp.(*cohere.NonStreamedChatResponse), nil
 }
 
-func (i *InstructorCohere) chat(ctx context.Context, request interface{}, schema *Schema) (string, interface{}, error) {
-
+func (i *InstructorCohere) chat(ctx context.Context, request interface{}, schemaIn interface{}) (string, interface{}, error) {
+	schema := schemaIn.(*Schema)
 	req, ok := request.(*cohere.ChatRequest)
 	if !ok {
 		return "", nil, fmt.Errorf("invalid request type for %s client", i.Provider())

@@ -23,8 +23,8 @@ func (i *InstructorOpenAI) CreateChatCompletionStream(
 	return stream, err
 }
 
-func (i *InstructorOpenAI) chatStream(ctx context.Context, request interface{}, schema *Schema) (<-chan string, error) {
-
+func (i *InstructorOpenAI) chatStream(ctx context.Context, request interface{}, schemaIn interface{}) (<-chan string, error) {
+	schema := schemaIn.(*Schema)
 	req, ok := request.(openai.ChatCompletionRequest)
 	if !ok {
 		return nil, fmt.Errorf("invalid request type for %s client", i.Provider())

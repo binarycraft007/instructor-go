@@ -4,6 +4,6 @@ import (
 	"context"
 )
 
-func (i *InstructorAnthropic) chatStream(ctx context.Context, request interface{}, schema *Schema) (<-chan string, error) {
+func (i *InstructorAnthropic) chatStream(ctx context.Context, request interface{}, schemaIn interface{}) (<-chan string, error) {
 	panic("unimplemented")
 }

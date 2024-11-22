@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/instructor-ai/instructor-go/pkg/instructor"
+	"github.com/binarycraft007/instructor-go/pkg/instructor"
 	openai "github.com/sashabaranov/go-openai"
 )
 

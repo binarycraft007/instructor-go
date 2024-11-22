@@ -19,7 +19,7 @@ type Instructor interface {
 	chat(
 		ctx context.Context,
 		request interface{},
-		schema *Schema,
+		schema interface{},
 	) (string, interface{}, error)
 
 	// Streaming Chat / Messages
@@ -27,7 +27,7 @@ type Instructor interface {
 	chatStream(
 		ctx context.Context,
 		request interface{},
-		schema *Schema,
+		schema interface{},
 	) (<-chan string, error)
 
 	// Usage counting

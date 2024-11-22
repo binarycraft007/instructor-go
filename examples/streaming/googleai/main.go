@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"os"
 
-	cohere "github.com/cohere-ai/cohere-go/v2"
-	cohereclient "github.com/cohere-ai/cohere-go/v2/client"
+	"github.com/google/generative-ai-go/genai"
 	"github.com/binarycraft007/instructor-go/pkg/instructor"
+	"github.com/binarycraft007/instructor-go/pkg/instructor/googleai"
+	"google.golang.org/api/option"
 )
 
 type HistoricalFact struct {
-	Decade      string `json:"decade"       jsonschema:"title=Decade of the Fact,description=Decade when the fact occurred"`
-	Topic       string `json:"topic"        jsonschema:"title=Topic of the Fact,description=General category or topic of the fact"`
-	Description string `json:"description"  jsonschema:"title=Description of the Fact,description=Description or details of the fact"`
+	Decade      string `json:"decade"       schema:"description=Decade when the fact occurred"`
+	Topic       string `json:"topic"        schema:"description=General category or topic of the fact"`
+	Description string `json:"description"  schema:"description=Description or details of the fact"`
 }
 
 func (hf HistoricalFact) String() string {
@@ -25,17 +26,28 @@ Description:    %s`, hf.Decade, hf.Topic, hf.Description)
 
 func main() {
 	ctx := context.Background()
+	genaiClient, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("GEMINI_API_KEY")))
+	if err != nil {
+		panic(err)
+	}
+	defer genaiClient.Close()
 
-	client := instructor.FromCohere(
-		cohereclient.NewClient(cohereclient.WithToken(os.Getenv("COHERE_API_KEY"))),
+	model := genaiClient.GenerativeModel("gemini-1.5-flash")
+	model.SetMaxOutputTokens(2500)
+	cs := model.StartChat()
+
+	client := instructor.FromGoogleAI(
+		genaiClient,
 		instructor.WithMode(instructor.ModeJSON),
 		instructor.WithMaxRetries(3),
 	)
 
-	hfStream, err := client.ChatStream(ctx, &cohere.ChatStreamRequest{
-		Model:     toPtr("command-r-plus"),
-		Message:   "Tell me about the history of artificial intelligence up to year 2000",
-		MaxTokens: toPtr(2500),
+	hfStream, err := client.ChatStream(ctx, &googleai.ChatRequest{
+		Model:   model,
+		Session: cs,
+		Parts: []genai.Part{
+			genai.Text("Tell me about the history of artificial intelligence up to year 2000"),
+		},
 	},
 		*new(HistoricalFact),
 	)

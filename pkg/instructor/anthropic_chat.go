@@ -24,8 +24,8 @@ func (i *InstructorAnthropic) CreateMessages(ctx context.Context, request anthro
 	return response, nil
 }
 
-func (i *InstructorAnthropic) chat(ctx context.Context, request interface{}, schema *Schema) (string, interface{}, error) {
-
+func (i *InstructorAnthropic) chat(ctx context.Context, request interface{}, schemaIn interface{}) (string, interface{}, error) {
+	schema := schemaIn.(*Schema)
 	req, ok := request.(anthropic.MessagesRequest)
 	if !ok {
 		return "", nil, fmt.Errorf("invalid request type for %s client", i.Provider())

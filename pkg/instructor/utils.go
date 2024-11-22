@@ -35,22 +35,23 @@ func findMatchingBracket(json *string, start int) int {
 }
 
 func getFirstFullJSONElement(json *string) (element string, remaining string) {
+	// Find the index of the matching bracket for the first element.
 	matchingBracketIdx := findMatchingBracket(json, 0)
-
 	if matchingBracketIdx == -1 {
-		return "", *json
+		return "", *json // No valid JSON element found
 	}
 
+	// Extract the full element (including the matching bracket)
 	element = (*json)[:matchingBracketIdx+1]
-	remaining = ""
 
-	if matchingBracketIdx+1 < len(*json) {
-		remaining = (*json)[matchingBracketIdx+1:]
+	// Calculate the remaining string after the element
+	remaining = (*json)[matchingBracketIdx+1:]
 
-		if (*json)[matchingBracketIdx+1] == ',' {
-			remaining = (*json)[matchingBracketIdx+2:]
-		}
+	// If there's a comma after the element, skip it
+	if len(remaining) > 0 && remaining[0] == ',' {
+		remaining = remaining[1:] // Remove the comma and continue
 	}
+	element = strings.TrimLeft(element, "[")
 
 	return element, remaining
 }

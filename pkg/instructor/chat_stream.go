@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/binarycraft007/instructor-go/pkg/instructor/googleai"
 )
 
 type StreamWrapper[T any] struct {
@@ -16,21 +17,32 @@ type StreamWrapper[T any] struct {
 const WRAPPER_END = `"items": [`
 
 func chatStreamHandler(i Instructor, ctx context.Context, request interface{}, response any) (<-chan interface{}, error) {
+	var err error
+	var schema interface{}
 
 	responseType := reflect.TypeOf(response)
 
-	streamWrapperType := reflect.StructOf([]reflect.StructField{
-		{
-			Name:      "Items",
-			Type:      reflect.SliceOf(responseType),
-			Tag:       `json:"items"`,
-			Anonymous: false,
-		},
-	})
+	if i.Provider() == ProviderGoogleAI {
+		// Create a slice type of the response type
+		sliceType := reflect.SliceOf(responseType)
+		schema, err = googleai.GenerateSchemaFromType(sliceType)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		streamWrapperType := reflect.StructOf([]reflect.StructField{
+			{
+				Name:      "Items",
+				Type:      reflect.SliceOf(responseType),
+				Tag:       `json:"items"`,
+				Anonymous: false,
+			},
+		})
 
-	schema, err := NewSchema(streamWrapperType)
-	if err != nil {
-		return nil, err
+		schema, err = NewSchema(streamWrapperType)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	ch, err := i.chatStream(ctx, request, schema)
